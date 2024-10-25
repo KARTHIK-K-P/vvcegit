@@ -1,6 +1,14 @@
 import os
 import re
 import streamlit as st
+import subprocess
+
+# Execute the shell script to download models
+subprocess.run(['bash', 'model.sh'])
+
+# After running the script, make sure to check if the model files exist
+if not os.path.exists('models/llama-2-7b-chat.ggmlv3.q4_1.bin') or not os.path.exists('models/llama-2-13b-german-assistant-v2.ggmlv3.q4_0.bin'):
+    raise FileNotFoundError("One or more model files are missing.")
 
 from langchain.chains import ConversationalRetrievalChain
 from langchain.document_loaders import (
