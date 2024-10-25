@@ -13,11 +13,17 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.llms import LlamaCpp
 from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import load_summarize_chain
+from langchain.schema import Document
 
 # Constants
 DB_FAISS_PATH = "vectorstore/db_faiss"
 MODEL_EMBEDDING_PATH = "sentence-transformers/all-MiniLM-L6-v2"
-ENGLISH_MODEL_PATH = "TheBloke/Llama-2-13B-German-Assistant-v2-GGML"  # Update to the correct model path if necessary
+ENGLISH_MODEL_PATH = "TheBloke/Llama-2-13B-German-Assistant-v2-GGML"  # GitHub link to model if available
 DATA_DIR = "data"
 
 class DocumentQAApp:
@@ -55,12 +61,15 @@ class DocumentQAApp:
 
     # Function to load the language model
     def load_model(self):
-        # Load the LLM directly from Hugging Face
-        llm = LlamaCpp.from_pretrained(
-            model_name=ENGLISH_MODEL_PATH,  # Use the correct Hugging Face model
-            callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
-            verbose=True,
-        )
+        # Load the LLM directly from the specified path
+        try:
+            llm = LlamaCpp(
+                model_path=ENGLISH_MODEL_PATH,  # Local path or URL to the model
+                callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
+                verbose=True,
+            )
+        except Exception as e:
+            raise Exception(f"Error loading the model: {str(e)}")
         return llm
 
     # Function to create HuggingFace embeddings
