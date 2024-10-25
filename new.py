@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 from langchain.chains import ConversationalRetrievalChain
-from langchain.document_loaders import (
+from langchain_community.document_loaders import (
     DirectoryLoader,
     PyPDFLoader,
     TextLoader,
@@ -9,15 +9,9 @@ from langchain.document_loaders import (
     UnstructuredMarkdownLoader,
     UnstructuredHTMLLoader,
 )
-from langchain.docstore.document import Document
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.chains.summarize import load_summarize_chain
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.llms import LlamaCpp
-from langchain.callbacks.manager import CallbackManager
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.memory import ConversationBufferMemory
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.llms import LlamaCpp
+from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 
 # Constants
