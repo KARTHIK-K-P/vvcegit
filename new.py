@@ -111,7 +111,7 @@ class DocumentQAApp:
             chain_type='stuff',
             retriever=vector_store.as_retriever(search_kwargs={"k": 2}),
             memory=memory,
-            combine_docs_chain_kwargs={"prompt": QA _CHAIN_PROMPT}
+            combine_docs_chain_kwargs={"prompt": QA_CHAIN_PROMPT}
         )
         return chain
 
