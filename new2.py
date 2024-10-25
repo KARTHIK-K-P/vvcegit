@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 from langchain.chains import ConversationalRetrievalChain
-from langchain.document_loaders import (
+from langchain_community.document_loaders import (
     DirectoryLoader,
     PyPDFLoader,
     TextLoader,
@@ -9,26 +9,25 @@ from langchain.document_loaders import (
     UnstructuredMarkdownLoader,
     UnstructuredHTMLLoader,
 )
-from langchain.docstore.document import Document
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.chains.summarize import load_summarize_chain
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.llms import LlamaCpp
-from langchain.callbacks.manager import CallbackManager
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.memory import ConversationBufferMemory
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
+from langchain.callbacks.manager import CallbackManager
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import load_summarize_chain
+from langchain.schema import Document
+from transformers import pipeline
 
 # Constants
 DB_FAISS_PATH = "vectorstore/db_faiss"
 MODEL_EMBEDDING_PATH = "sentence-transformers/all-MiniLM-L6-v2"
-LLM_MODEL_NAME = "TheBloke/Llama-2-13B-German-Assistant-v2-GGML"
+LLAMA_MODEL_NAME = "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"  # Specify the model name from Hugging Face Hub
 DATA_DIR = "data"
 
 class DocumentQAApp:
     def __init__(self):
-        self.llm = self.load_model()
+        self.llm = self.load_pipeline()
         self.embeddings = self.create_huggingface_embeddings()
 
     # Function to save uploaded files
@@ -59,17 +58,12 @@ class DocumentQAApp:
 
         vector_database.save_local(DB_FAISS_PATH)
 
-    # Function to load the language model
-    def load_model(self):
-        callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
-        
-        llm = LlamaCpp.from_pretrained(
-            model_name=LLM_MODEL_NAME,
-            callback_manager=callback_manager,
-            verbose=True,
-        )
-
-        return llm
+    # Function to load the pipeline from transformers
+    def load_pipeline(self):
+        try:
+            return pipeline("text-generation", model=LLAMA_MODEL_NAME, max_length=100)
+        except Exception as e:
+            raise Exception(f"Error loading pipeline model: {str(e)}")
 
     # Function to create HuggingFace embeddings
     def create_huggingface_embeddings(self):
@@ -108,10 +102,10 @@ class DocumentQAApp:
 
     # Function to handle conversation chat
     def conversation_chat(self, query):
-        chain = self.create_qa_bot()
-        result = chain({"question": query, "chat_history": st.session_state['history']})
-        st.session_state['history'].append((query, result["answer"]))
-        return result["answer"]
+        # Query the Hugging Face pipeline
+        response = self.llm(query)[0]["generated_text"]
+        st.session_state['history'].append((query, response))
+        return response
 
     # Initialize session state
     def initialize_session_state(self):
