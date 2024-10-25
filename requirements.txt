@@ -1,4 +1,5 @@
 langchain
+langchain-community
 streamlit
 sentence_transformers
 faiss-cpu
