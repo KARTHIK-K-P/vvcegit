@@ -61,17 +61,16 @@ class DocumentQAApp:
 
     # Function to load the language model
     def load_model(self):
-    model_path = "/path/to/your/downloaded/model"  # Update to your local model path
-    try:
-        llm = LlamaCpp(
-            model_path=model_path,  # Use the local path to the downloaded model
-            callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
-            verbose=True,
-        )
-    except Exception as e:
-        raise Exception(f"Error loading the model: {str(e)}")
-    return llm
-
+        model_path = "/path/to/your/downloaded/model"  # Update to your local model path
+        try:
+            llm = LlamaCpp(
+                model_path=model_path,  # Use the local path to the downloaded model
+                callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
+                verbose=True,
+            )
+        except Exception as e:
+            raise Exception(f"Error loading the model: {str(e)}")
+        return llm
 
     # Function to create HuggingFace embeddings
     def create_huggingface_embeddings(self):
